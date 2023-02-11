@@ -11,7 +11,7 @@ import util.ComparadorMaquinas;
  *
  * @author Geam
  */
-public class Balance {
+public class BalanceamentoBLM {
 
     public void minimizarTempoProcessamento() {
 

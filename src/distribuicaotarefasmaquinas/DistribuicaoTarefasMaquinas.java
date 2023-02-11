@@ -1,7 +1,7 @@
 
 package distribuicaotarefasmaquinas;
 
-import controller.Balance;
+import controller.BalanceamentoBLM;
 
 /**
  *
@@ -13,7 +13,7 @@ public class DistribuicaoTarefasMaquinas {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-       new Balance().minimizarTempoProcessamento();
+       new BalanceamentoBLM().minimizarTempoProcessamento();
     }
     
 }
