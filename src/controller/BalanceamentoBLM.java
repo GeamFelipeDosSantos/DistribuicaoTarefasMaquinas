@@ -32,7 +32,7 @@ public class BalanceamentoBLM {
 
             maquinas.add(new Maquina(i, tarefas));
         }
-
+        System.out.println("Equilibrar makespan esquerda  para Direita ");
         int i = 0;
         do {
             i++;
@@ -42,18 +42,27 @@ public class BalanceamentoBLM {
             imprimirCargaMaquinas(maquinas);
         } while (i < 1000);
 
+        /*System.out.println("Equilibrar makespan  Direita para esquerda ");
+        i = 0;
+        do {
+            i++;
+            maquinas = gerarMakespanMaquinas(maquinas);
+            maquinas = equilibrarMakespanDE(/*maquinas);
+            Collections.sort(maquinas, new ComparadorMaquinas());
+            imprimirCargaMaquinas(maquinas);
+        } while (i < 1000);
+         */
         // imprimirMaquinasTarefas(maquinas);
         // imprimirCargaMaquinas(maquinas);
     }
 
-    private ArrayList<Maquina> equilibrarMakespan(/*ArrayList<Maquina> maquinas*/) {
+    private ArrayList<Maquina> equilibrarMakespanED(/*ArrayList<Maquina> maquinas*/) {
 
         Maquina maquinaMaiorMakespan = maquinas.get(0);
         Maquina maquinaMenorMakespan = maquinas.get(1);
 
         for (int i = 0; i < maquinas.size() - 1; i++) {
 
-            //if (!maquinas.get(i).equals(maquinas.get(i + 1))) {
             if (maquinas.get(i).getMakespan() > maquinas.get(i + 1).getMakespan()) {
 
                 maquinaMaiorMakespan = maquinas.get(i);
@@ -61,7 +70,7 @@ public class BalanceamentoBLM {
 
                 maquinas.remove(maquinas.get(i));
                 maquinas.remove(maquinas.get(i));
-//-----------------------------
+
                 System.out.println("Maquina maior makespan: " + maquinaMaiorMakespan.getIdMaquina());
                 System.out.println("Maquina menor makespan: " + maquinaMenorMakespan.getIdMaquina());
 
@@ -76,29 +85,99 @@ public class BalanceamentoBLM {
                     maquinas.add(maquinaMaiorMakespan);
                     maquinas.add(maquinaMenorMakespan);
                 }
-//-----------------------------
+
+                //Sai do laço
                 i = maquinas.size();
             }
-            // } else {
-            //     i = maquinas.size();
-            // }
 
         }
 
-        /* System.out.println("Maquina maior makespan: " + maquinaMaiorMakespan.getIdMaquina());
-        System.out.println("Maquina menor makespan: " + maquinaMenorMakespan.getIdMaquina());
+        return maquinas;
+    }
 
-        Tarefa maiorTarefa = buscarMaiorTarefaMaquina(maquinaMaiorMakespan);
+    private ArrayList<Maquina> equilibrarMakespanDE(/*ArrayList<Maquina> maquinas*/) {
 
-        System.out.println("Maior tarefa: " + maiorTarefa.getIdTarefa() + " Processamento: " + maiorTarefa.getValorProcessamento());
+        Maquina maquinaMaiorMakespan = maquinas.get(0);
+        Maquina maquinaMenorMakespan = maquinas.get(1);
 
-        maquinaMenorMakespan.getTarefas().add(maiorTarefa);
-        maquinaMaiorMakespan.getTarefas().remove(maiorTarefa);
+        for (int i = 0; i < maquinas.size() - 1; i++) {
 
-        if (!maquinaMaiorMakespan.equals(maquinaMenorMakespan)) {
-            maquinas.add(maquinaMaiorMakespan);
-            maquinas.add(maquinaMenorMakespan);
-        }*/
+            if (maquinas.get(i).getMakespan() < maquinas.get(i + 1).getMakespan()) {
+
+                maquinaMaiorMakespan = maquinas.get(i + 1);
+                maquinaMenorMakespan = maquinas.get(i);
+
+                maquinas.remove(maquinas.get(i));
+                maquinas.remove(maquinas.get(i));
+
+                System.out.println("Maquina maior makespan: " + maquinaMaiorMakespan.getIdMaquina());
+                System.out.println("Maquina menor makespan: " + maquinaMenorMakespan.getIdMaquina());
+
+                Tarefa maiorTarefa = buscarMaiorTarefaMaquina(maquinaMaiorMakespan);
+
+                System.out.println("Maior tarefa: " + maiorTarefa.getIdTarefa() + " Processamento: " + maiorTarefa.getValorProcessamento());
+
+                maquinaMenorMakespan.getTarefas().add(maiorTarefa);
+                maquinaMaiorMakespan.getTarefas().remove(maiorTarefa);
+
+                if (!maquinaMaiorMakespan.equals(maquinaMenorMakespan)) {
+                    maquinas.add(maquinaMaiorMakespan);
+                    maquinas.add(maquinaMenorMakespan);
+                }
+
+                //Sai do laço
+                i = maquinas.size();
+            }
+
+        }
+
+        return maquinas;
+    }
+
+    private ArrayList<Maquina> equilibrarMakespan(/*ArrayList<Maquina> maquinas*/) {
+
+        Maquina maquinaMaiorMakespan = maquinas.get(0);
+        Maquina maquinaMenorMakespan = maquinas.get(1);
+
+        for (int i = 0; i < maquinas.size() - 1; i++) {
+            for (int j = 0; j < maquinas.size() - 1; j++) {
+
+                if (!maquinas.get(i).equals(maquinas.get(j))) {
+
+                    if (maquinas.get(i).getMakespan() > maquinas.get(j).getMakespan()) {
+
+                        maquinaMaiorMakespan = maquinas.get(i);
+                        maquinaMenorMakespan = maquinas.get(j);
+
+                        maquinas.remove(maquinas.get(i));
+                        maquinas.remove(maquinas.get(j));
+
+                        System.out.println("Maquina maior makespan: " + maquinaMaiorMakespan.getIdMaquina());
+                        System.out.println("Maquina menor makespan: " + maquinaMenorMakespan.getIdMaquina());
+
+                        Tarefa maiorTarefa = buscarMaiorTarefaMaquina(maquinaMaiorMakespan);
+
+                        System.out.println("Maior tarefa: " + maiorTarefa.getIdTarefa() + " Processamento: " + maiorTarefa.getValorProcessamento());
+
+                        maquinaMenorMakespan.getTarefas().add(maiorTarefa);
+                        maquinaMaiorMakespan.getTarefas().remove(maiorTarefa);
+
+                        //if (!maquinaMaiorMakespan.equals(maquinaMenorMakespan)) {
+                        maquinas.add(maquinaMaiorMakespan);
+                        maquinas.add(maquinaMenorMakespan);
+                        //}
+
+                        //Sai do laço
+                        j = maquinas.size();
+                        //Sai do laço
+                        i = maquinas.size();
+                    }
+                }
+
+            }
+
+        }
+
         return maquinas;
     }
 
