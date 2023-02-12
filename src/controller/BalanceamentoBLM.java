@@ -32,21 +32,26 @@ public class BalanceamentoBLM {
             maquinas.add(new Maquina(i, tarefas));
         }
 
-        gerarMakespanMaquinas(maquinas);
-        equilibrarMakespan(maquinas);
-        Collections.sort(maquinas, new ComparadorMaquinas());
-        gerarMakespanMaquinas(maquinas);
-        equilibrarMakespan(maquinas);
-        Collections.sort(maquinas, new ComparadorMaquinas());
-        imprimirMaquinasTarefas(maquinas);
+        int i = 0;
+        do {
+            i++;
+            maquinas = gerarMakespanMaquinas(maquinas);
+            maquinas = equilibrarMakespan(maquinas);
+            Collections.sort(maquinas, new ComparadorMaquinas());
+            imprimirCargaMaquinas(maquinas);
+        } while (i < 1000);
+
+        // imprimirMaquinasTarefas(maquinas);
+        // imprimirCargaMaquinas(maquinas);
     }
 
-    private void equilibrarMakespan(ArrayList<Maquina> maquinas) {
+    private ArrayList<Maquina> equilibrarMakespan(ArrayList<Maquina> maquinas) {
 
         Maquina maquinaMaiorMakespan = new Maquina();
         Maquina maquinaMenorMakespan = new Maquina();
 
-        for (int i = 0; i < maquinas.size(); i++) {
+        for (int i = 0; i < maquinas.size() - 1; i++) {
+
             if (maquinas.get(i).getMakespan() > maquinas.get(i + 1).getMakespan()) {
 
                 maquinaMaiorMakespan = maquinas.get(i);
@@ -56,8 +61,8 @@ public class BalanceamentoBLM {
                 maquinas.remove(maquinas.get(i));
 
                 i = maquinas.size();
-
             }
+
         }
 
         System.out.println("Maquina maior makespan: " + maquinaMaiorMakespan.getIdMaquina());
@@ -70,9 +75,12 @@ public class BalanceamentoBLM {
         maquinaMenorMakespan.getTarefas().add(maiorTarefa);
         maquinaMaiorMakespan.getTarefas().remove(maiorTarefa);
 
-        maquinas.add(maquinaMaiorMakespan);
-        maquinas.add(maquinaMenorMakespan);
+        if (!maquinaMaiorMakespan.equals(maquinaMenorMakespan)) {
+            maquinas.add(maquinaMaiorMakespan);
+            maquinas.add(maquinaMenorMakespan);
+        }
 
+        return maquinas;
     }
 
     private int gerarValorProcessamentoAleatorioTarefa() {
@@ -116,7 +124,7 @@ public class BalanceamentoBLM {
         return maquinas;
     }
 
-    private void gerarMakespanMaquinas(ArrayList<Maquina> maquinas) {
+    private ArrayList<Maquina> gerarMakespanMaquinas(ArrayList<Maquina> maquinas) {
 
         for (Maquina maquina : maquinas) {
             float makespanCalculado = 0;
@@ -125,6 +133,8 @@ public class BalanceamentoBLM {
             }
             maquina.setMakespan(makespanCalculado);
         }
+
+        return maquinas;
 
     }
 
@@ -146,13 +156,20 @@ public class BalanceamentoBLM {
         return maquinasOrdenadas;
         
     }*/
-
     public void imprimirMaquinasTarefas(ArrayList<Maquina> maquinas) {
 
         for (Maquina maquina : maquinas) {
             for (Tarefa tarefa : maquina.getTarefas()) {
                 System.out.println("Maquina: " + maquina.getIdMaquina() + " Makespan máquina: " + maquina.getMakespan() + " Tarefa: " + tarefa.getIdTarefa() + " Valor processamento tarefa: " + tarefa.getValorProcessamento());
             }
+        }
+
+    }
+
+    public void imprimirCargaMaquinas(ArrayList<Maquina> maquinas) {
+
+        for (Maquina maquina : maquinas) {
+            System.out.println("Maquina: " + maquina.getIdMaquina() + " Makespan máquina: " + maquina.getMakespan() + " Qtd. tarefas: " + maquina.getTarefas().size());
         }
 
     }
