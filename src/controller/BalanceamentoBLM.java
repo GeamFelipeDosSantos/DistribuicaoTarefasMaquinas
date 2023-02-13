@@ -3,6 +3,7 @@ package controller;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
+import javax.swing.JOptionPane;
 import model.Maquina;
 import model.Tarefa;
 import util.ComparadorMaquinas;
@@ -13,12 +14,18 @@ import util.ComparadorMaquinas;
  */
 public class BalanceamentoBLM {
 
+    private static int quantidadeMaquinas = 0;//quantidade de tarefas;
+    private static int quantidadeTarefas = 0;//quantidade de maquinas;
+    private static long inicio = 0;
+    private static long fim = 0;
+    private static int iteracoes = 0;
+
     public void minimizarTempoProcessamento() {
 
         //Cria estrutura das máquinas
         ArrayList<Maquina> maquinas = new ArrayList<>();
-        int quantidadeMaquinas = 50;
-        int quantidadeTarefas = 31;
+        quantidadeMaquinas = Integer.parseInt(JOptionPane.showInputDialog("Informe a quantidade de máquinas:"));
+        quantidadeTarefas = gerarQuantidadeTarefas(quantidadeMaquinas);
 
         for (int i = 0; i < quantidadeMaquinas; i++) {
 
@@ -32,23 +39,28 @@ public class BalanceamentoBLM {
         }
 
         maquinas = gerarMakespanMaquinas(maquinas);
+        System.out.println("Makespan inicial:" + encontrarMaquinaMaiorMakespan(maquinas).getMakespan());
         imprimirCargaMaquinas(maquinas);
 
-        int i = 0;
+        inicio = System.currentTimeMillis();
+
         do {
-            i++;
+            iteracoes++;
 
             maquinas = equilibrarMakespan(maquinas);
             Collections.sort(maquinas, new ComparadorMaquinas());
             maquinas = gerarMakespanMaquinas(maquinas);
 
-        } while (i < 2000);
+        } while (iteracoes < 5000);
+
+        fim = System.currentTimeMillis();
 
         System.out.println("======================================================="
                 + "\n"
                 + "=======================================================");
         //imprimirMaquinasTarefas(maquinas);
         imprimirCargaMaquinas(maquinas);
+        imprimirResultados(maquinas);
     }
 
     private ArrayList<Maquina> equilibrarMakespan(ArrayList<Maquina> maquinas) {
@@ -62,7 +74,7 @@ public class BalanceamentoBLM {
         for (int i = 0; i < maquinas.size(); i++) {
 
             if (maquinas.get(i).equals(maquinaMenorMakespan)) {
-                
+
                 maquinas.get(i).getTarefas().add(maiorTarefa);
             }
 
@@ -103,9 +115,29 @@ public class BalanceamentoBLM {
 
     private int gerarValorProcessamentoAleatorioTarefa() {
 
-        Random aleatorio = new Random();
-        int valor = aleatorio.nextInt(100) + 1;
+        Random valorAleatorio = new Random();
+        int valor = valorAleatorio.nextInt(100) + 1;
         //System.out.println("Número gerado: " + valor);
+        return valor;
+
+    }
+
+    private int gerarQuantidadeTarefas(int quantidadeMaquinas) {
+
+        return (int) Math.pow(quantidadeMaquinas, gerarExpoenteAleatorioTarefa());
+    }
+
+    private float gerarExpoenteAleatorioTarefa() {
+
+        Random valorAleatorio = new Random();
+
+        float valor = (float) ((valorAleatorio.nextFloat()) + 1.5);
+
+        if (valor % 2 == 0) {
+            valor = 2;
+        } else {
+            valor = (float) 1.5;
+        }
         return valor;
 
     }
@@ -152,6 +184,19 @@ public class BalanceamentoBLM {
         for (Maquina maquina : maquinas) {
             System.out.println("Maquina: " + maquina.getIdMaquina() + " Makespan máquina: " + maquina.getMakespan() + " Qtd. tarefas: " + maquina.getTarefas().size());
         }
+
+    }
+
+    public void imprimirResultados(ArrayList<Maquina> maquinas) {
+
+        System.out.println("\n\nHeurística: Busca local monótona."
+                + "\nQuantidade de tarefas (n): " + quantidadeTarefas
+                + "\nQuantidade de máquinas (m): " + quantidadeMaquinas
+                + "\nReplicação:"
+                + "\nTempo: " + (fim - inicio) + "ms"
+                + "\nIterações: " + iteracoes
+                + "\nValor:" + encontrarMaquinaMaiorMakespan(maquinas).getMakespan()
+                + "\nParâmetro:");
 
     }
 
