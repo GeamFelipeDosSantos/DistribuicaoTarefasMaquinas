@@ -13,12 +13,12 @@ import util.ComparadorMaquinas;
  */
 public class BalanceamentoBLM {
 
-    static ArrayList<Maquina> maquinas = new ArrayList<>();
+    //static ArrayList<Maquina> maquinas = new ArrayList<>();
 
     public void minimizarTempoProcessamento() {
 
         //Cria estrutura das máquinas
-        //ArrayList<Maquina> maquinas = new ArrayList<>();
+        ArrayList<Maquina> maquinas = new ArrayList<>();
         int quantidadeMaquinas = 10;
         int quantidadeTarefas = 31;
 
@@ -37,11 +37,42 @@ public class BalanceamentoBLM {
         do {
             i++;
             maquinas = gerarMakespanMaquinas(maquinas);
-            maquinas = equilibrarMakespan(/*maquinas*/);
+            maquinas = equilibrarMakespanDE(maquinas);
             Collections.sort(maquinas, new ComparadorMaquinas());
+            //removerDuplicidade();
             imprimirCargaMaquinas(maquinas);
+
         } while (i < 1000);
 
+        do {
+            i++;
+            maquinas = gerarMakespanMaquinas(maquinas);
+            maquinas = equilibrarMakespanED(maquinas);
+            Collections.sort(maquinas, new ComparadorMaquinas());
+            //removerDuplicidade();
+            imprimirCargaMaquinas(maquinas);
+
+        } while (i < 1000);
+        
+        do {
+            i++;
+            maquinas = gerarMakespanMaquinas(maquinas);
+            maquinas = equilibrarMakespanEM(maquinas);
+            Collections.sort(maquinas, new ComparadorMaquinas());
+            //removerDuplicidade();
+            imprimirCargaMaquinas(maquinas);
+
+        } while (i < 1000);
+        
+           do {
+            i++;
+            maquinas = gerarMakespanMaquinas(maquinas);
+            maquinas = equilibrarMakespanDM(maquinas);
+            Collections.sort(maquinas, new ComparadorMaquinas());
+            //removerDuplicidade();
+            imprimirCargaMaquinas(maquinas);
+
+        } while (i < 1000);
         /*System.out.println("Equilibrar makespan  Direita para esquerda ");
         i = 0;
         do {
@@ -56,7 +87,7 @@ public class BalanceamentoBLM {
         // imprimirCargaMaquinas(maquinas);
     }
 
-    private ArrayList<Maquina> equilibrarMakespanED(/*ArrayList<Maquina> maquinas*/) {
+    private ArrayList<Maquina> equilibrarMakespanED(ArrayList<Maquina> maquinas) {
 
         Maquina maquinaMaiorMakespan = maquinas.get(0);
         Maquina maquinaMenorMakespan = maquinas.get(1);
@@ -95,7 +126,86 @@ public class BalanceamentoBLM {
         return maquinas;
     }
 
-    private ArrayList<Maquina> equilibrarMakespanDE(/*ArrayList<Maquina> maquinas*/) {
+    private ArrayList<Maquina> equilibrarMakespanEM(ArrayList<Maquina> maquinas) {
+
+        Maquina maquinaMaiorMakespan = maquinas.get(0);
+        Maquina maquinaMenorMakespan = maquinas.get(1);
+
+        for (int i = 0; i < maquinas.size()/2; i++) {
+
+            if (maquinas.get(i).getMakespan() > maquinas.get(i + 1).getMakespan()) {
+
+                maquinaMaiorMakespan = maquinas.get(i);
+                maquinaMenorMakespan = maquinas.get(i + 1);
+
+                maquinas.remove(maquinas.get(i));
+                maquinas.remove(maquinas.get(i));
+
+                System.out.println("Maquina maior makespan: " + maquinaMaiorMakespan.getIdMaquina());
+                System.out.println("Maquina menor makespan: " + maquinaMenorMakespan.getIdMaquina());
+
+                Tarefa maiorTarefa = buscarMaiorTarefaMaquina(maquinaMaiorMakespan);
+
+                System.out.println("Maior tarefa: " + maiorTarefa.getIdTarefa() + " Processamento: " + maiorTarefa.getValorProcessamento());
+
+                maquinaMenorMakespan.getTarefas().add(maiorTarefa);
+                maquinaMaiorMakespan.getTarefas().remove(maiorTarefa);
+
+                if (!maquinaMaiorMakespan.equals(maquinaMenorMakespan)) {
+                    maquinas.add(maquinaMaiorMakespan);
+                    maquinas.add(maquinaMenorMakespan);
+                }
+
+                //Sai do laço
+                i = maquinas.size();
+            }
+
+        }
+
+        return maquinas;
+    }
+    
+    private ArrayList<Maquina> equilibrarMakespanDM(ArrayList<Maquina> maquinas) {
+
+        Maquina maquinaMaiorMakespan = maquinas.get(0);
+        Maquina maquinaMenorMakespan = maquinas.get(1);
+
+        for (int i = maquinas.size()/2; i < maquinas.size(); i++) {
+
+            if (maquinas.get(i).getMakespan() > maquinas.get(i + 1).getMakespan()) {
+
+                maquinaMaiorMakespan = maquinas.get(i);
+                maquinaMenorMakespan = maquinas.get(i + 1);
+
+                maquinas.remove(maquinas.get(i));
+                maquinas.remove(maquinas.get(i));
+
+                System.out.println("Maquina maior makespan: " + maquinaMaiorMakespan.getIdMaquina());
+                System.out.println("Maquina menor makespan: " + maquinaMenorMakespan.getIdMaquina());
+
+                Tarefa maiorTarefa = buscarMaiorTarefaMaquina(maquinaMaiorMakespan);
+
+                System.out.println("Maior tarefa: " + maiorTarefa.getIdTarefa() + " Processamento: " + maiorTarefa.getValorProcessamento());
+
+                maquinaMenorMakespan.getTarefas().add(maiorTarefa);
+                maquinaMaiorMakespan.getTarefas().remove(maiorTarefa);
+
+                if (!maquinaMaiorMakespan.equals(maquinaMenorMakespan)) {
+                    maquinas.add(maquinaMaiorMakespan);
+                    maquinas.add(maquinaMenorMakespan);
+                }
+
+                //Sai do laço
+                i = maquinas.size();
+            }
+
+        }
+
+        return maquinas;
+    }
+
+    
+    private ArrayList<Maquina> equilibrarMakespanDE(ArrayList<Maquina> maquinas) {
 
         Maquina maquinaMaiorMakespan = maquinas.get(0);
         Maquina maquinaMenorMakespan = maquinas.get(1);
@@ -134,13 +244,13 @@ public class BalanceamentoBLM {
         return maquinas;
     }
 
-    private ArrayList<Maquina> equilibrarMakespan(/*ArrayList<Maquina> maquinas*/) {
-
-        Maquina maquinaMaiorMakespan = maquinas.get(0);
-        Maquina maquinaMenorMakespan = maquinas.get(1);
+    private ArrayList<Maquina> equilibrarMakespan(ArrayList<Maquina> maquinas) {
 
         for (int i = 0; i < maquinas.size() - 1; i++) {
             for (int j = 0; j < maquinas.size() - 1; j++) {
+
+                Maquina maquinaMaiorMakespan = maquinas.get(j);
+                Maquina maquinaMenorMakespan = maquinas.get(j);
 
                 if (!maquinas.get(i).equals(maquinas.get(j))) {
 
@@ -163,8 +273,12 @@ public class BalanceamentoBLM {
                         maquinaMaiorMakespan.getTarefas().remove(maiorTarefa);
 
                         //if (!maquinaMaiorMakespan.equals(maquinaMenorMakespan)) {
-                        maquinas.add(maquinaMaiorMakespan);
-                        maquinas.add(maquinaMenorMakespan);
+                            if (verificarExistenciaMaquina(maquinaMaiorMakespan,maquinas)) {
+                                maquinas.add(maquinaMaiorMakespan);
+                            }
+                            if (verificarExistenciaMaquina(maquinaMenorMakespan,maquinas)) {
+                                maquinas.add(maquinaMenorMakespan);
+                            }
                         //}
 
                         //Sai do laço
@@ -221,6 +335,30 @@ public class BalanceamentoBLM {
         maquinas.remove(maquina);
         return maquinas;
     }
+
+    private boolean verificarExistenciaMaquina(Maquina maquina, ArrayList<Maquina> maquinas) {
+        for (int i = 0; i < maquinas.size(); i++) {
+            if (maquina.equals(maquinas.get(i))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /*private void removerDuplicidade() {
+
+        ArrayList<Maquina> novasMaquinas = maquinas;
+
+        for (int i = 0; i < maquinas.size() - 1; i++) {
+            if (maquinas.get(i).equals(maquinas.get(i + 1))) {
+                novasMaquinas.remove(novasMaquinas.get(1 + 1));
+                System.out.println("Achou maquina igual");
+            }
+        }
+        //maquinas.clear();
+        maquinas = novasMaquinas;
+    }*/
 
     private ArrayList<Maquina> gerarMakespanMaquinas(ArrayList<Maquina> maquinas) {
 
