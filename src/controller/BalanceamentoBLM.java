@@ -52,13 +52,10 @@ public class BalanceamentoBLM {
             Collections.sort(maquinas, new ComparadorMaquinas());
             maquinas = gerarMakespanMaquinas(maquinas);
 
-        } while (iteracoes < 5000);
+        } while (iteracoes < 1000);
 
         tempoFinal = System.currentTimeMillis();
 
-        System.out.println("======================================================="
-                + "\n"
-                + "=======================================================");
         //imprimirMaquinasTarefas(maquinas);
         //imprimirCargaMaquinas(maquinas);
         imprimirResultados(maquinas);
@@ -132,15 +129,13 @@ public class BalanceamentoBLM {
 
         Random valorAleatorio = new Random();
 
-        float valor = (float) ((valorAleatorio.nextFloat()) + 1.5);
+        int valor = (valorAleatorio.nextInt()) ;
 
         if (valor % 2 == 0) {
-            valor = 2;
+            return 2;
         } else {
-            valor = (float) 1.5;
-        }        
-        return valor;
-
+            return (float)1.5;
+        }  
     }
 
     private Tarefa buscarMaiorTarefaMaquina(Maquina maquina) {
@@ -190,14 +185,14 @@ public class BalanceamentoBLM {
 
     public void imprimirResultados(ArrayList<Maquina> maquinas) {
 
-        System.out.println("\n\nHeurística: Busca local monótona."
-                + "\nQuantidade de tarefas (n): " + quantidadeTarefas
-                + "\nQuantidade de máquinas (m): " + quantidadeMaquinas
-                + "\nReplicação: "+replicacao
-                + "\nTempo: " + (tempoFinal - tempoInicial) + "ms"
-                + "\nIterações: " + iteracoes
-                + "\nValor: " + encontrarMaquinaMaiorMakespan(maquinas).getMakespan()
-                + "\nParâmetro:");
+        System.out.println(
+                 "\t" + quantidadeTarefas
+                +"\t"+ "\t"+"\t"+ "\t"+ "\t"+   quantidadeMaquinas
+                +"\t"+ "\t"+ replicacao
+                +"\t"+ "\t"+  (tempoFinal - tempoInicial) + "ms"
+                +"\t"+"\t"+   iteracoes
+                +"\t"+ "\t"+  Math.round(encontrarMaquinaMaiorMakespan(maquinas).getMakespan()/ maquinas.size())
+                +"\t"+"\t"   );
 
     }
 

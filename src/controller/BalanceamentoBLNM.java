@@ -15,18 +15,24 @@ import util.ComparadorMaquinas;
 public class BalanceamentoBLNM {
 
     private static int quantidadeMaquinas = 0;//quantidade de tarefas;
-    private static int quantidadeTarefas = 0;//quantidade de maquinas;
-    private static long inicio = 0;
-    private static long fim = 0;
+    private static int quantidadeTarefas = 0;//quantidade de maquinas; 
+    
     private static int iteracoes = 0;
+    private static double pertubacaoGlobal = 0;
+    private static int replicacao = 0;
+    private static long tempoInicial = 0;
+    private static long tempoFinal = 0;    
 
-    public void minimizarTempoProcessamento() {
-
+    public void minimizarTempoProcessamento(int replicacoes, int qtdMaquinas) {
+        
+        replicacao = replicacoes;
         //Cria estrutura das máquinas
         ArrayList<Maquina> maquinas = new ArrayList<>();
-        quantidadeMaquinas = Integer.parseInt(JOptionPane.showInputDialog("Informe a quantidade de máquinas:"));
+        quantidadeMaquinas = qtdMaquinas;
         quantidadeTarefas = gerarQuantidadeTarefas(quantidadeMaquinas);
-
+        
+         
+         
         for (int i = 0; i < quantidadeMaquinas; i++) {
 
             ArrayList<Tarefa> tarefas = new ArrayList<>();
@@ -37,56 +43,84 @@ public class BalanceamentoBLNM {
 
             maquinas.add(new Maquina(i, tarefas));
         }
-
+         
         maquinas = gerarMakespanMaquinas(maquinas);
-        System.out.println("Makespan inicial:" + encontrarMaquinaMaiorMakespan(maquinas).getMakespan());
-        imprimirCargaMaquinas(maquinas);
+        //System.out.println("Makespan inicial:" + encontrarMaquinaMaiorMakespan(maquinas).getMakespan());
+        //imprimirCargaMaquinas(maquinas);
 
-        inicio = System.currentTimeMillis();
+        tempoInicial = System.currentTimeMillis();
 
         do {
             iteracoes++;
-
-            maquinas = equilibrarMakespan(maquinas);
+            Random valorAleatorio = new Random();
+            double valor = valorAleatorio.nextDouble();   
+            maquinas = equilibrarMakespan(maquinas,valor);
             Collections.sort(maquinas, new ComparadorMaquinas());
             maquinas = gerarMakespanMaquinas(maquinas);
 
-        } while (iteracoes < 5000);
+        } while (iteracoes < 1000);
 
-        fim = System.currentTimeMillis();
+        tempoFinal = System.currentTimeMillis();
 
-        System.out.println("======================================================="
-                + "\n"
-                + "=======================================================");
+       
         //imprimirMaquinasTarefas(maquinas);
-        imprimirCargaMaquinas(maquinas);
+        //imprimirCargaMaquinas(maquinas);
         imprimirResultados(maquinas);
+        iteracoes = 0;
     }
 
-    private ArrayList<Maquina> equilibrarMakespan(ArrayList<Maquina> maquinas) {
+    private ArrayList<Maquina> equilibrarMakespan(ArrayList<Maquina> maquinas, double pertubacao) {
+        
+        //80 - bagunca
+        double quantidadeMovimento = maquinas.size() * pertubacao;
+        pertubacaoGlobal = pertubacao;
+        //20 - normal
+        
+        ArrayList<Maquina> maquinasPertubacao = new ArrayList<>();
+        ArrayList<Maquina> maquinasRestante = new ArrayList<>();
+        
+         for (int i = 0; i < maquinas.size(); i++) {
+                // 0 1 2 3 4
+            if (i <= quantidadeMovimento ) {                
+                maquinasPertubacao.add(maquinas.get(i));                    
+            }
+        } 
+        maquinas.clear();
+        maquinas.addAll(AjustarMaskspeanMaquina(maquinasPertubacao));
+        maquinas.addAll(maquinasRestante);
+        
+        return maquinas;
+    }
+    
+    private ArrayList<Maquina> AjustarMaskspeanMaquina(ArrayList<Maquina> maquinas) {
 
         Maquina maquinaMaiorMakespan = encontrarMaquinaMaiorMakespan(maquinas);
         Maquina maquinaMenorMakespan = encontrarMaquinaMenorMakespan(maquinas);
+        
+            Tarefa maiorTarefa = buscarMaiorTarefaMaquina(maquinaMaiorMakespan);
+            maquinaMaiorMakespan.getTarefas().remove(maiorTarefa);
+            
+            maquinas.remove(maquinaMaiorMakespan);
+            maquinas.add(maquinaMaiorMakespan);
+            
+            for (int i = 0; i < maquinas.size(); i++) {
 
-        Tarefa maiorTarefa = buscarMaiorTarefaMaquina(maquinaMaiorMakespan);
-        maquinaMaiorMakespan.getTarefas().remove(maiorTarefa);
+                if (maquinas.get(i).equals(maquinaMenorMakespan)) {
 
-        for (int i = 0; i < maquinas.size(); i++) {
-
-            if (maquinas.get(i).equals(maquinaMenorMakespan)) {
-
-                maquinas.get(i).getTarefas().add(maiorTarefa);
-            }
-
-        }
-
+                    maquinas.get(i).getTarefas().add(maiorTarefa);
+                    
+                    break;
+                }   
+            } 
+            
         return maquinas;
     }
+   
 
     private Maquina encontrarMaquinaMenorMakespan(ArrayList<Maquina> maquinas) {
 
         Maquina maquinaMenorMakespan = new Maquina();
-        float menorMakespan = 9999999;
+        float menorMakespan = 999999999;
 
         for (Maquina maquina : maquinas) {
             if (maquina.getMakespan() < menorMakespan) {
@@ -124,21 +158,22 @@ public class BalanceamentoBLNM {
 
     private int gerarQuantidadeTarefas(int quantidadeMaquinas) {
 
+        //Random valorAleatorio = new Random();
+        //int valor = valorAleatorio.nextInt(4);
+        //return (int) Math.pow(quantidadeMaquinas, valor);
         return (int) Math.pow(quantidadeMaquinas, gerarExpoenteAleatorioTarefa());
     }
 
     private float gerarExpoenteAleatorioTarefa() {
 
         Random valorAleatorio = new Random();
-
-        float valor = (float) ((valorAleatorio.nextFloat()) + 1.5);
+        int valor = (valorAleatorio.nextInt()) ;
 
         if (valor % 2 == 0) {
-            valor = 2;
+            return 2;
         } else {
-            valor = (float) 1.5;
-        }        
-        return valor;
+            return (float)1.5;
+        }  
 
     }
 
@@ -187,16 +222,16 @@ public class BalanceamentoBLNM {
 
     }
 
-    public void imprimirResultados(ArrayList<Maquina> maquinas) {
-
-        System.out.println("\n\nHeurística: Busca local monótona."
-                + "\nQuantidade de tarefas (n): " + quantidadeTarefas
-                + "\nQuantidade de máquinas (m): " + quantidadeMaquinas
-                + "\nReplicação: "
-                + "\nTempo: " + (fim - inicio) + "ms"
-                + "\nIterações: " + iteracoes
-                + "\nValor: " + encontrarMaquinaMaiorMakespan(maquinas).getMakespan()
-                + "\nParâmetro:");
+    public void imprimirResultados(ArrayList<Maquina> maquinas) {        
+        
+         System.out.println(
+                 "\t" + quantidadeTarefas
+                +"\t"+ "\t"+"\t"+ "\t"+ "\t"+   quantidadeMaquinas
+                +"\t"+ "\t"+ replicacao
+                +"\t"+ "\t"+  (tempoFinal - tempoInicial) + "ms"
+                +"\t"+"\t"+   iteracoes
+                +"\t"+ "\t"+  Math.round(encontrarMaquinaMaiorMakespan(maquinas).getMakespan()/ maquinas.size())
+                +"\t"+"\t"+   pertubacaoGlobal);
 
     }
 }
