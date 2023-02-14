@@ -137,7 +137,7 @@ public class BalanceamentoBLNM {
             valor = 2;
         } else {
             valor = (float) 1.5;
-        }
+        }        
         return valor;
 
     }
@@ -192,10 +192,10 @@ public class BalanceamentoBLNM {
         System.out.println("\n\nHeurística: Busca local monótona."
                 + "\nQuantidade de tarefas (n): " + quantidadeTarefas
                 + "\nQuantidade de máquinas (m): " + quantidadeMaquinas
-                + "\nReplicação:"
+                + "\nReplicação: "
                 + "\nTempo: " + (fim - inicio) + "ms"
                 + "\nIterações: " + iteracoes
-                + "\nValor:" + encontrarMaquinaMaiorMakespan(maquinas).getMakespan()
+                + "\nValor: " + encontrarMaquinaMaiorMakespan(maquinas).getMakespan()
                 + "\nParâmetro:");
 
     }

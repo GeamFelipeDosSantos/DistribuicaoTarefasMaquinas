@@ -3,7 +3,6 @@ package controller;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
-import javax.swing.JOptionPane;
 import model.Maquina;
 import model.Tarefa;
 import util.ComparadorMaquinas;
@@ -16,15 +15,17 @@ public class BalanceamentoBLM {
 
     private static int quantidadeMaquinas = 0;//quantidade de tarefas;
     private static int quantidadeTarefas = 0;//quantidade de maquinas;
-    private static long inicio = 0;
-    private static long fim = 0;
+    private static long tempoInicial = 0;
+    private static long tempoFinal = 0;
     private static int iteracoes = 0;
+    private static int replicacao = 0;
 
-    public void minimizarTempoProcessamento() {
-
+    public void minimizarTempoProcessamento(int replicacoes, int qtdMaquinas) {
+        
+        replicacao = replicacoes;
         //Cria estrutura das máquinas
         ArrayList<Maquina> maquinas = new ArrayList<>();
-        quantidadeMaquinas = Integer.parseInt(JOptionPane.showInputDialog("Informe a quantidade de máquinas:"));
+        quantidadeMaquinas = qtdMaquinas;
         quantidadeTarefas = gerarQuantidadeTarefas(quantidadeMaquinas);
 
         for (int i = 0; i < quantidadeMaquinas; i++) {
@@ -39,10 +40,10 @@ public class BalanceamentoBLM {
         }
 
         maquinas = gerarMakespanMaquinas(maquinas);
-        System.out.println("Makespan inicial:" + encontrarMaquinaMaiorMakespan(maquinas).getMakespan());
-        imprimirCargaMaquinas(maquinas);
+        //System.out.println("Makespan inicial:" + encontrarMaquinaMaiorMakespan(maquinas).getMakespan());
+        //imprimirCargaMaquinas(maquinas);
 
-        inicio = System.currentTimeMillis();
+        tempoInicial = System.currentTimeMillis();
 
         do {
             iteracoes++;
@@ -53,14 +54,15 @@ public class BalanceamentoBLM {
 
         } while (iteracoes < 5000);
 
-        fim = System.currentTimeMillis();
+        tempoFinal = System.currentTimeMillis();
 
         System.out.println("======================================================="
                 + "\n"
                 + "=======================================================");
         //imprimirMaquinasTarefas(maquinas);
-        imprimirCargaMaquinas(maquinas);
+        //imprimirCargaMaquinas(maquinas);
         imprimirResultados(maquinas);
+        iteracoes = 0;
     }
 
     private ArrayList<Maquina> equilibrarMakespan(ArrayList<Maquina> maquinas) {
@@ -117,13 +119,12 @@ public class BalanceamentoBLM {
 
         Random valorAleatorio = new Random();
         int valor = valorAleatorio.nextInt(100) + 1;
-        //System.out.println("Número gerado: " + valor);
         return valor;
 
     }
 
     private int gerarQuantidadeTarefas(int quantidadeMaquinas) {
-
+        
         return (int) Math.pow(quantidadeMaquinas, gerarExpoenteAleatorioTarefa());
     }
 
@@ -137,7 +138,7 @@ public class BalanceamentoBLM {
             valor = 2;
         } else {
             valor = (float) 1.5;
-        }
+        }        
         return valor;
 
     }
@@ -192,10 +193,10 @@ public class BalanceamentoBLM {
         System.out.println("\n\nHeurística: Busca local monótona."
                 + "\nQuantidade de tarefas (n): " + quantidadeTarefas
                 + "\nQuantidade de máquinas (m): " + quantidadeMaquinas
-                + "\nReplicação:"
-                + "\nTempo: " + (fim - inicio) + "ms"
+                + "\nReplicação: "+replicacao
+                + "\nTempo: " + (tempoFinal - tempoInicial) + "ms"
                 + "\nIterações: " + iteracoes
-                + "\nValor:" + encontrarMaquinaMaiorMakespan(maquinas).getMakespan()
+                + "\nValor: " + encontrarMaquinaMaiorMakespan(maquinas).getMakespan()
                 + "\nParâmetro:");
 
     }
